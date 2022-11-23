@@ -47,14 +47,13 @@ public abstract class BluetoothConnection
         }
 
         BluetoothSocket socket;
-        try{
+        try {
             socket = device.createRfcommSocketToServiceRecord(uuid); // @TODO . introduce ConnectionMethod
             if (socket == null) {
                 throw new IOException("Secure socket connection not established");
             }
-        }
-        catch(Exception ex){
-            socket = createInsecureRfcommSocketToServiceRecord(MY_UUID);
+        } catch (Exception ex) {
+            socket = createInsecureRfcommSocketToServiceRecord(uuid);
         }
 
         if (socket == null) {
