@@ -46,10 +46,21 @@ public abstract class BluetoothConnection
             throw new IOException("device not found");
         }
 
-        BluetoothSocket socket = device.createRfcommSocketToServiceRecord(uuid); // @TODO . introduce ConnectionMethod
+        BluetoothSocket socket;
+        try{
+            socket = device.createRfcommSocketToServiceRecord(uuid); // @TODO . introduce ConnectionMethod
+            if (socket == null) {
+                throw new IOException("Secure socket connection not established");
+            }
+        }
+        catch(Exception ex){
+            socket = createInsecureRfcommSocketToServiceRecord(MY_UUID);
+        }
+
         if (socket == null) {
             throw new IOException("socket connection not established");
         }
+
 
         // Cancel discovery, even though we didn't start it
         bluetoothAdapter.cancelDiscovery();
