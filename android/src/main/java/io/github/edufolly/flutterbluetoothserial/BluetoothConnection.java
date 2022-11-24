@@ -11,8 +11,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 
 /// Universal Bluetooth serial connection class (for Java)
-public abstract class BluetoothConnection
-{
+public abstract class BluetoothConnection {
     protected static final UUID DEFAULT_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     protected BluetoothAdapter bluetoothAdapter;
@@ -23,17 +22,14 @@ public abstract class BluetoothConnection
         return connectionThread != null && connectionThread.requestedClosing != true;
     }
 
-
-
     public BluetoothConnection(BluetoothAdapter bluetoothAdapter) {
         this.bluetoothAdapter = bluetoothAdapter;
     }
 
-
-
     // @TODO . `connect` could be done perfored on the other thread
     // @TODO . `connect` parameter: timeout
-    // @TODO . `connect` other methods than `createRfcommSocketToServiceRecord`, including hidden one raw `createRfcommSocket` (on channel).
+    // @TODO . `connect` other methods than `createRfcommSocketToServiceRecord`,
+    // including hidden one raw `createRfcommSocket` (on channel).
     // @TODO ? how about turning it into factoried?
     /// Connects to given device by hardware address
     public void connect(String address, UUID uuid) throws IOException {
@@ -46,20 +42,11 @@ public abstract class BluetoothConnection
             throw new IOException("device not found");
         }
 
-        BluetoothSocket socket;
-        try {
-            socket = device.createRfcommSocketToServiceRecord(uuid); // @TODO . introduce ConnectionMethod
-            if (socket == null) {
-                throw new IOException("Secure socket connection not established");
-            }
-        } catch (Exception ex) {
-            socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
-        }
+        var socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
 
         if (socket == null) {
             throw new IOException("socket connection not established");
         }
-
 
         // Cancel discovery, even though we didn't start it
         bluetoothAdapter.cancelDiscovery();
@@ -69,11 +56,12 @@ public abstract class BluetoothConnection
         connectionThread = new ConnectionThread(socket);
         connectionThread.start();
     }
+
     /// Connects to given device by hardware address (default UUID used)
     public void connect(String address) throws IOException {
         connect(address, DEFAULT_UUID);
     }
-    
+
     /// Disconnects current session (ignore if not connected)
     public void disconnect() {
         if (isConnected()) {
@@ -82,7 +70,7 @@ public abstract class BluetoothConnection
         }
     }
 
-    /// Writes to connected remote device 
+    /// Writes to connected remote device
     public void write(byte[] data) throws IOException {
         if (!isConnected()) {
             throw new IOException("not connected");
@@ -98,12 +86,12 @@ public abstract class BluetoothConnection
     protected abstract void onDisconnected(boolean byRemote);
 
     /// Thread to handle connection I/O
-    private class ConnectionThread extends Thread  {
+    private class ConnectionThread extends Thread {
         private final BluetoothSocket socket;
         private final InputStream input;
         private final OutputStream output;
         private boolean requestedClosing = false;
-        
+
         ConnectionThread(BluetoothSocket socket) {
             this.socket = socket;
             InputStream tmpIn = null;
@@ -140,16 +128,16 @@ public abstract class BluetoothConnection
             if (output != null) {
                 try {
                     output.close();
+                } catch (Exception e) {
                 }
-                catch (Exception e) {}
             }
 
             // Make sure input stream is closed
             if (input != null) {
                 try {
                     input.close();
+                } catch (Exception e) {
                 }
-                catch (Exception e) {}
             }
 
             // Callback on disconnected, with information which side is closing
@@ -178,8 +166,8 @@ public abstract class BluetoothConnection
             // Flush output buffers befoce closing
             try {
                 output.flush();
+            } catch (Exception e) {
             }
-            catch (Exception e) {}
 
             // Close the connection socket
             if (socket != null) {
@@ -188,8 +176,8 @@ public abstract class BluetoothConnection
                     Thread.sleep(111);
 
                     socket.close();
+                } catch (Exception e) {
                 }
-                catch (Exception e) {}
             }
         }
     }
