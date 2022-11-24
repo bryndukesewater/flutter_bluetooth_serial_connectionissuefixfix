@@ -42,7 +42,7 @@ public abstract class BluetoothConnection {
             throw new IOException("device not found");
         }
 
-        var socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
+        BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
 
         if (socket == null) {
             throw new IOException("socket connection not established");
